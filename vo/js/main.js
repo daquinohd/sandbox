@@ -13,22 +13,20 @@
 		}
 		*/
         
-        if(typeof(NCIAnalytics) !== 'undefined') 
-        {
-            triggerAnalytics($);
-        }
+		if(typeof(NCIAnalytics) !== 'undefined') 
+		{
+			triggerAnalytics($);
+		}
 
 	});
 }(jQuery, document, window));
 
 
 /**
- * 
+ * Use jQuery to fire off analytics on various element clicks
  * @param {function} $ 
  */
 function triggerAnalytics($) {
-    // TODO: clean up 
-    console.log('NCIAnalytics object found...');
 
     // Query parameters
     var pathName = window.location.pathname.toLowerCase();
@@ -40,7 +38,7 @@ function triggerAnalytics($) {
     
     //// CGOV-4453
     // Track image detail button clicks
-    var $detail = 'vol_detail|' + imageID + '|';		
+    var $detail = 'vol_detail|' + imageID + '|';
     $('a.add-picture').click(function() {
         NCIAnalytics.DetailsActionClick($(this), $detail + 'na|favorite');
     })
@@ -94,44 +92,40 @@ function triggerAnalytics($) {
 
     //// CGOV-4509
     // Track homepage card clicks
+    // TODO: fix function on static
     $(".cards div[id^='card-']").click(function() {
         var $this = $(this);
         var $title = $this.text().trim();
         var $type = 'vol_card:' + $this.attr('id').replace('card-','');
-        console.log('prop57: ' + $title);
-        console.log('prop58: ' + $title);
-        console.log('prop59: ' + $type);
-        console.log('prop67:  D=pageName');
-        // NCIAnalytics.HomepageCardClick($this, $title, $type);
+        NCIAnalytics.HomepageCardClick($this, $title, $type);
     })
 
 
     //// CGOV-5058
     // Global Search
-    $('.searchform').submit(function() {
+    $('.header-search, .home-search').find('.searchform').submit(function() {
         var $this = $(this);
         var $term = $this.serialize();
-        console.log('prop11/eVar11: ' + 'vol_globalsearch');
-        console.log('prop14/eVar14: ' + $term.replace('q=',''));
-        // NCIAnalytics.SearchOptions($(this), $term, 'vol_globalsearch');
+        $term = $term.replace('q=','');
+        NCIAnalytics.SearchOptions($(this), $term, 'vol_globalsearch');
     })
 
     // Advanced Search
+    // TODO: parse query values
     $('.content-form#search').submit(function() {
         var $this = $(this);
         var $term = $this.serialize();
-        console.log('prop11/eVar11: ' + 'vol_advancedsearch');
-        console.log('prop14/eVar14: ' + $term);
-        // NCIAnalytics.SearchOptions($(this), $term, 'vol_advancedsearch');
+        console.log('terms: ' + $term);        
+        NCIAnalytics.SearchOptions($(this), $term, 'vol_advancedsearch');
     })
 
     // Modify Search
+    // TODO: parse query values
     $('#againform').submit(function() {
         var $this = $(this);
         var $term = $this.serialize();
-        console.log('prop11/eVar11: ' + 'vol_modifysearch');
-        console.log('prop14/eVar14: ' + $term);
-        // NCIAnalytics.SearchOptions($(this), $term, 'vol_modifysearch');
+        console.log('terms: ' + $term);        
+        NCIAnalytics.SearchOptions($(this), $term, 'vol_modifysearch');
     }) 
 
     // Track search dropdown and more search options
@@ -140,9 +134,7 @@ function triggerAnalytics($) {
             var $this = $(this);
             var $term = $this.find('option:selected').text();
             $term = $term.replace(/-/g, '').trim();
-            console.log('prop11/eVar11: ' + 'vol_quicktopicsearch');
-            console.log('prop14/eVar14: ' + $term);
-            // NCIAnalytics.SearchOptions($(this), $term, 'vol_quicktopicsearch');
+            NCIAnalytics.SearchOptions($(this), $term, 'vol_quicktopicsearch');
         })
     } 
 
