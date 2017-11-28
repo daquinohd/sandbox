@@ -27,17 +27,14 @@
  * @param {function} $ 
  */
 function triggerAnalytics($) {
-
+    // TODO: clean up 
     // Query parameters
     var pathName = window.location.pathname.toLowerCase();
-    var groupID = getParameterByName('groupid') || '';
     var imageID = getParameterByName('imageid') || '';
-    var imageType = getParameterByName('imagetype') || 'any';
+    var imageIDs = getParameterByName('imageids') || '';
+    var groupID = getParameterByName('groupid') || '';
+    var topicID = getParameterByName('topicid') || '';
     var searchTerm = getParameterByName('q') || '';
-    var sort = getParameterByName('sort') || 'relevance';
-    var topicID = getParameterByName('topicid') || '';    
-    var yearFrom = getParameterByName('from') || 'any';
-    var yearTo = getParameterByName('to') || 'any';
     
     //// CGOV-4453
     // Track image detail button clicks
@@ -95,7 +92,6 @@ function triggerAnalytics($) {
 
     //// CGOV-4509
     // Track homepage card clicks
-    // TODO: fix function on static
     $(".cards div[id^='card-']").click(function() {
         var $this = $(this);
         var $title = $this.text().trim();
@@ -106,38 +102,24 @@ function triggerAnalytics($) {
 
     //// CGOV-5058
     // Global Search
-    $('.header-search, .home-search').find('.searchform').submit(function() {
+    $('.searchform').submit(function() {
         var $this = $(this);
-        var $term = $this.serialize();
-        $term = $term.replace('q=','');
-        if($term.length < 1) { $term = 'none' };        
-        NCIAnalytics.SearchOptions($(this), $term, 'vol_globalsearch');
+        var $term = formatParamsForAnalytics($this);
+        NCIAnalytics.SearchOptions($this, $term, 'vol_globalsearch');
     })
 
     // Advanced Search
     $('.content-form#search').submit(function() {
         var $this = $(this);
-        var $term = searchTerm;
-        if($term.length < 1) { $term = 'none' };
-        var $parms = formatAdvSearchParams(yearFrom, yearTo, topicID, imageType, sort);
-        console.log('vol_advancedsearch -- term: ' + $term);
-        console.log('params: ' + $parms);
-        console.log(yearFrom);
-        // // var $term = $this.serialize();
-        // NCIAnalytics.SearchOptions($(this), $term, 'vol_advancedsearch');
+        var $parms = formatParamsForAnalytics($this, true);
+        NCIAnalytics.SearchOptions($this, $parms, 'vol_advancedsearch');
     })
 
     // Modify Search
     $('#againform').submit(function() {
         var $this = $(this);
-        var $term = searchTerm;
-        if($term.length < 1) { $term = 'none' };
-        var $parms = formatAdvSearchParams(yearFrom, yearTo, topicID, imageType, sort);
-        console.log('vol_modifysearch -- term: ' + $term);
-        console.log('params: ' + $parms);
-        console.log(yearFrom);
-        // var $term = $this.serialize();
-        // NCIAnalytics.SearchOptions($(this), $term, 'vol_modifysearch');
+        var $parms = formatParamsForAnalytics($this, true);
+        NCIAnalytics.SearchOptions($this, $parms, 'vol_modifysearch');
     }) 
 
     // Track search dropdown and more search options
@@ -148,7 +130,7 @@ function triggerAnalytics($) {
             $term = $term.replace(/-/g, '').trim();
             NCIAnalytics.SearchOptions($(this), $term, 'vol_quicktopicsearch');
         })
-    }
+    } 
 
 }
 
@@ -171,21 +153,32 @@ function getParameterByName(name, url) {
 
 
 /**
- * Format search params into a delimited string
- * @param {any} yrFrom 
- * @param {any} yrTo 
- * @param {any} topic 
- * @param {any} img 
- * @param {any} sort 
- * @returns 
+ * Format search terms from advanced/modify search.
+ * @param {any} form 
+ * @param {bool} isFiltered 
  */
-function formatAdvSearchParams(yrFrom, yrTo, topic, img, sort) {
-    if(topic.length < 1) { topic = 'any'; }    
- 
-    var rtn = [];   
-    rtn.push('date:' + yrFrom + '-' + yrTo);
-    rtn.push('topic:' + topic);
-    rtn.push('image:' + img);
-    rtn.push('sort:' + sort);
-    return rtn.join('||');
+function formatParamsForAnalytics(form, isFiltered) {
+    // Seriialize the form data into a URL-like query string
+    var parms = '?' + form.serialize();
+    var ret = [];
+
+    // Get the search term from the URL
+    var term = getParameterByName('q', parms) || 'none';
+    ret.push(term);
+
+    // If this is an advanced or modified search, get additional 
+    // params from the URL and build the analytics blob. 
+    if(isFiltered) {
+        var from = getParameterByName('from', parms) || 'any';
+        var to = getParameterByName('to', parms) || 'any';
+        var topic = getParameterByName('topicid', parms) || 'none';
+        var image = getParameterByName('imagetype', parms) || 'any';
+        var sort = getParameterByName('sort', parms) || 'relevance';
+        
+        ret.push(('date:' + from + '-' + to).replace('any-any','any'));
+        ret.push('topic:' + topic);
+        ret.push('image:' + image);
+        ret.push('sort:' + sort);
+    }
+    return ret.join('|');
 }
