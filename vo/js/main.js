@@ -12,10 +12,11 @@
 			new Equalizer($('.js-equalizer'));
 		}
 		*/
-        
+		
+		// Call tracking functions if the NCIAnalytics object exists
 		if(typeof(NCIAnalytics) !== 'undefined') 
 		{
-			triggerAnalytics($);
+			doAnalytics($);
 		}
 
 	});
@@ -23,10 +24,10 @@
 
 
 /**
- * Use jQuery to fire off analytics on various element clicks
+ * Fire off click event analytics for trackable elements
  * @param {function} $ 
  */
-function triggerAnalytics($) {
+function doAnalytics($) {
     // Query parameters
     var pathName = window.location.pathname.toLowerCase();
     var imageID = getParameterByName('imageid') || '';
