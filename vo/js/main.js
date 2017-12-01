@@ -38,15 +38,15 @@ function doAnalytics($) {
     //// Track image detail button clicks
     var $detail = 'vol_detail|' + imageID + '|';
     $('a.add-picture').click(function() {
-        NCIAnalytics.DetailsActionClick($(this), $detail + 'na|favorite');
+        NCIAnalytics.DetailsActionClick($(this), $detail + 'favorite|na');
     })
     $('.view a').click(function() {
         var $id = $(this).attr('id').split('-');
-        NCIAnalytics.DetailsActionClick($(this), $detail + $id[1] + '|view');
+        NCIAnalytics.DetailsActionClick($(this), $detail + 'view|' + $id[1]);
     })
     $('.download a').click(function() {
         var $id = $(this).attr('id').split('-');
-        NCIAnalytics.DetailsActionClick($(this), $detail + $id[1] + '|download');
+        NCIAnalytics.DetailsActionClick($(this), $detail + 'download|' + $id[1]);
     })
 
     //// Track zoom and slideshow clicks on gallery pages
